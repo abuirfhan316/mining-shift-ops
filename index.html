@@ -112,6 +112,7 @@ select.form-input{cursor:pointer;}
 .req-meta{font-size:12px;color:var(--muted);margin-top:3px;}
 .req-type{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:6px;}
 .type-AL{background:var(--green-dim);color:var(--green);}
+.type-CL{background:var(--blue-dim);color:var(--blue);}
 .type-CO{background:var(--purple-dim);color:var(--purple);}
 .req-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;}
 .status-pending{background:var(--orange-dim);color:var(--orange);}
@@ -336,6 +337,7 @@ select.form-input{cursor:pointer;}
             <select class="form-input" id="leaveType" onchange="checkEligibility()">
               <option value="">Select type...</option>
               <option value="AL">Annual Leave (AL)</option>
+              <option value="CL">Casual Leave (CL)</option>
               <option value="CO">ð Comp-Off (CO)</option>
             </select>
           </div>
@@ -350,7 +352,7 @@ select.form-input{cursor:pointer;}
             </div>
           </div>
           <div id="dayCountBox" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;">
-            Leave days counted: <strong id="totalDays" style="color:var(--amber);">0</strong>
+            ð Total days selected: <strong id="totalDays" style="color:var(--amber);">0</strong>
           </div>
           <div id="eligibilityResult" style="margin-bottom:12px;"></div>
           <div class="form-group">
@@ -831,8 +833,8 @@ async function checkEligibility(){
   let okDates=[],conflictDates=[],blockedDates=[];
   for(const date of dates){
     const myShift=getShift(name,date);
-    if(myShift&&['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){
-      html+=`<div class="day-check-row skip"><span>ð ${date}</span><span style="color:var(--muted);font-size:11px;">${myShift} â skipped</span></div>`;
+    if(!myShift||['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){
+      html+=`<div class="day-check-row skip"><span>ð ${date}</span><span style="color:var(--muted);font-size:11px;">${myShift||'No shift'} â skipped</span></div>`;
       continue;
     }
     const alreadyApplied=existing.find(r=>r.username===currentUser.username&&r.leave_date===date);
@@ -913,7 +915,7 @@ async function submitLeaveConfirmed(){
   let submitted=0,skipped=0;
   for(const date of dates){
     const myShift=getShift(name,date);
-    if(myShift&&['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){skipped++;continue;}
+    if(!myShift||['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){skipped++;continue;}
     if(existing.find(r=>r.username===currentUser.username&&r.leave_date===date)){skipped++;continue;}
     if(type==='AL'){
       const othersAL=existing.filter(r=>r.username!==currentUser.username&&r.leave_date===date&&r.leave_type==='AL');

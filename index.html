@@ -112,7 +112,6 @@ select.form-input{cursor:pointer;}
 .req-meta{font-size:12px;color:var(--muted);margin-top:3px;}
 .req-type{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:6px;}
 .type-AL{background:var(--green-dim);color:var(--green);}
-.type-CL{background:var(--blue-dim);color:var(--blue);}
 .type-CO{background:var(--purple-dim);color:var(--purple);}
 .req-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;text-transform:uppercase;}
 .status-pending{background:var(--orange-dim);color:var(--orange);}
@@ -226,7 +225,7 @@ select.form-input{cursor:pointer;}
       <button class="btn btn-primary btn-full" onclick="login()">Sign In</button>
     </div>
     <div id="panel-register" style="display:none;">
-      <div class="info-box blue" style="margin-bottom:14px;">📋 Your account needs admin approval before you can sign in.</div>
+      <div class="info-box blue" style="margin-bottom:14px;">ð Your account needs admin approval before you can sign in.</div>
       <div class="form-group">
         <label class="form-label">Full Name</label>
         <select class="form-input" id="regName">
@@ -250,9 +249,9 @@ select.form-input{cursor:pointer;}
           <option>Ragesh Umapathy</option>
           <option>Shamlan Kandan</option>
           <option>Arun David</option>
-          <option>Norman Abaño</option>
+          <option>Norman AbaÃ±o</option>
           <option>Aguinaldo</option>
-          <option>Niño Malaiba</option>
+          <option>NiÃ±o Malaiba</option>
           <option>Bala</option>
           <option>Shyam</option>
         </select>
@@ -281,29 +280,29 @@ select.form-input{cursor:pointer;}
     <div class="logo">Mining<span>Shift</span></div>
     <div class="topbar-right">
       <div class="user-chip">
-        <span id="topbarName">—</span>
-        <span class="role-badge" id="topbarRole">—</span>
+        <span id="topbarName">â</span>
+        <span class="role-badge" id="topbarRole">â</span>
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="switchView('changepass')">🔑 Password</button>
+      <button class="btn btn-secondary btn-sm" onclick="switchView('changepass')">ð Password</button>
       <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
     </div>
   </div>
   <div class="main">
     <div class="sidebar">
       <div class="sidebar-label" style="margin-bottom:10px;">Menu</div>
-      <button class="nav-item active" id="nav-calendar" onclick="switchView('calendar')">📅 My Schedule</button>
-      <button class="nav-item" id="nav-apply" onclick="switchView('apply')">📝 Apply Leave</button>
-      <button class="nav-item" id="nav-myleaves" onclick="switchView('myleaves')">🗂 My Requests</button>
-      <button class="nav-item" id="nav-team" onclick="switchView('team')">👥 Team Schedule</button>
+      <button class="nav-item active" id="nav-calendar" onclick="switchView('calendar')">ð My Schedule</button>
+      <button class="nav-item" id="nav-apply" onclick="switchView('apply')">ð Apply Leave</button>
+      <button class="nav-item" id="nav-myleaves" onclick="switchView('myleaves')">ð My Requests</button>
+      <button class="nav-item" id="nav-team" onclick="switchView('team')">ð¥ Team Schedule</button>
       <div id="adminNav" style="display:none;">
         <div class="divider"></div>
         <div class="sidebar-label">Admin</div>
-        <button class="nav-item" id="nav-pending" onclick="switchView('pending')">⏳ Pending <span class="nav-badge" id="pendingBadge">0</span></button>
-        <button class="nav-item" id="nav-allleaves" onclick="switchView('allleaves')">📊 All Requests</button>
-        <button class="nav-item" id="nav-balances" onclick="switchView('balances')">🧮 Leave Balances</button>
-        <button class="nav-item" id="nav-builder" onclick="switchView('builder')">🗓 Schedule Builder</button>
-        <button class="nav-item" id="nav-staff" onclick="switchView('staff')">👤 Staff Accounts</button>
-        <button class="nav-item" id="nav-importexport" onclick="switchView('importexport')">📂 Import / Export</button>
+        <button class="nav-item" id="nav-pending" onclick="switchView('pending')">â³ Pending <span class="nav-badge" id="pendingBadge">0</span></button>
+        <button class="nav-item" id="nav-allleaves" onclick="switchView('allleaves')">ð All Requests</button>
+        <button class="nav-item" id="nav-balances" onclick="switchView('balances')">ð§® Leave Balances</button>
+        <button class="nav-item" id="nav-builder" onclick="switchView('builder')">ð Schedule Builder</button>
+        <button class="nav-item" id="nav-staff" onclick="switchView('staff')">ð¤ Staff Accounts</button>
+        <button class="nav-item" id="nav-importexport" onclick="switchView('importexport')">ð Import / Export</button>
       </div>
     </div>
     <div class="content">
@@ -311,11 +310,11 @@ select.form-input{cursor:pointer;}
       <!-- MY SCHEDULE -->
       <div class="view active" id="view-calendar">
         <div class="view-title">My Schedule</div>
-        <div class="view-sub">Your 2026 shift calendar — click a working day to apply leave</div>
+        <div class="view-sub">Your 2026 shift calendar â click a working day to apply leave</div>
         <div class="month-nav">
-          <button onclick="prevMonth()">‹ Prev</button>
-          <div class="month-label" id="monthLabel">—</div>
-          <button onclick="nextMonth()">Next ›</button>
+          <button onclick="prevMonth()">â¹ Prev</button>
+          <div class="month-label" id="monthLabel">â</div>
+          <button onclick="nextMonth()">Next âº</button>
         </div>
         <div class="cal-grid">
           <div class="cal-header">Sun</div><div class="cal-header">Mon</div>
@@ -337,8 +336,7 @@ select.form-input{cursor:pointer;}
             <select class="form-input" id="leaveType" onchange="checkEligibility()">
               <option value="">Select type...</option>
               <option value="AL">Annual Leave (AL)</option>
-              <option value="CL">Casual Leave (CL)</option>
-              <option value="CO">🔄 Comp-Off (CO)</option>
+              <option value="CO">ð Comp-Off (CO)</option>
             </select>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -352,7 +350,7 @@ select.form-input{cursor:pointer;}
             </div>
           </div>
           <div id="dayCountBox" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;">
-            📅 Total days selected: <strong id="totalDays" style="color:var(--amber);">0</strong>
+            Leave days counted: <strong id="totalDays" style="color:var(--amber);">0</strong>
           </div>
           <div id="eligibilityResult" style="margin-bottom:12px;"></div>
           <div class="form-group">
@@ -390,9 +388,9 @@ select.form-input{cursor:pointer;}
         <div class="view-title">Leave Balances</div>
         <div class="view-sub">Set annual AL / CL entitlement and review pending, used, and available days</div>
         <div class="month-nav">
-          <button onclick="balanceYear--;loadLeaveBalances()">‹ Prev Year</button>
-          <div class="month-label" id="balanceYearLabel">—</div>
-          <button onclick="balanceYear++;loadLeaveBalances()">Next Year ›</button>
+          <button onclick="balanceYear--;loadLeaveBalances()">â¹ Prev Year</button>
+          <div class="month-label" id="balanceYearLabel">â</div>
+          <button onclick="balanceYear++;loadLeaveBalances()">Next Year âº</button>
         </div>
         <div id="balanceContent"><div class="empty-state"><div class="spinner"></div></div></div>
       </div>
@@ -402,9 +400,9 @@ select.form-input{cursor:pointer;}
         <div class="view-title">Team Schedule</div>
         <div class="view-sub">Full team shifts with daily Morning / Afternoon / Night counts</div>
         <div class="month-nav">
-          <button onclick="prevTeamMonth()">‹ Prev</button>
-          <div class="month-label" id="teamMonthLabel">—</div>
-          <button onclick="nextTeamMonth()">Next ›</button>
+          <button onclick="prevTeamMonth()">â¹ Prev</button>
+          <div class="month-label" id="teamMonthLabel">â</div>
+          <button onclick="nextTeamMonth()">Next âº</button>
         </div>
         <div id="teamCalContent"></div>
       </div>
@@ -414,12 +412,12 @@ select.form-input{cursor:pointer;}
         <div class="builder-toolbar">
           <div>
             <div class="view-title">Schedule Builder</div>
-            <div class="view-sub">Admin only — click any cell, choose a shift, and it saves instantly</div>
+            <div class="view-sub">Admin only â click any cell, choose a shift, and it saves instantly</div>
           </div>
           <div class="builder-actions">
-            <button class="btn btn-secondary btn-sm" onclick="prevBuilderMonth()">‹ Prev</button>
-            <div class="month-label" id="builderMonthLabel">—</div>
-            <button class="btn btn-secondary btn-sm" onclick="nextBuilderMonth()">Next ›</button>
+            <button class="btn btn-secondary btn-sm" onclick="prevBuilderMonth()">â¹ Prev</button>
+            <div class="month-label" id="builderMonthLabel">â</div>
+            <button class="btn btn-secondary btn-sm" onclick="nextBuilderMonth()">Next âº</button>
             <button class="btn btn-secondary btn-sm" onclick="newBuilderSchedule()">New Schedule</button>
             <button class="btn btn-primary btn-sm" onclick="addBuilderStaff()">+ Add Staff</button>
           </div>
@@ -440,7 +438,7 @@ select.form-input{cursor:pointer;}
         <div class="view-sub">Download or upload schedule and leave data</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:780px;margin-bottom:20px;">
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;">
-            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">⬇ Export Schedule</div>
+            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">â¬ Export Schedule</div>
             <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Download team schedule as Excel</p>
             <div class="form-group">
               <label class="form-label">Month</label>
@@ -454,13 +452,13 @@ select.form-input{cursor:pointer;}
                 <option value="10">November</option><option value="11">December</option>
               </select>
             </div>
-            <button class="btn btn-primary btn-full" onclick="exportSchedule()">⬇ Export to Excel</button>
+            <button class="btn btn-primary btn-full" onclick="exportSchedule()">â¬ Export to Excel</button>
           </div>
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;">
-            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">⬆ Import Schedule</div>
+            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">â¬ Import Schedule</div>
             <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Upload Excel to update schedule</p>
             <div class="drop-zone" onclick="document.getElementById('scheduleFile').click()">
-              <div style="font-size:26px;margin-bottom:6px;">📂</div>
+              <div style="font-size:26px;margin-bottom:6px;">ð</div>
               <p style="color:var(--muted);font-size:13px;"><strong style="color:var(--amber);">Click to upload</strong> or drag & drop .xlsx</p>
             </div>
             <input type="file" id="scheduleFile" accept=".xlsx" style="display:none" onchange="importSchedule(event)">
@@ -468,7 +466,7 @@ select.form-input{cursor:pointer;}
           </div>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:780px;">
-          <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:12px;">📋 Export Leave Requests</div>
+          <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:12px;">ð Export Leave Requests</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn btn-secondary" onclick="exportLeaves('all')">All Requests</button>
             <button class="btn btn-secondary" onclick="exportLeaves('pending')">Pending Only</button>
@@ -498,7 +496,7 @@ select.form-input{cursor:pointer;}
 <!-- REJECT MODAL -->
 <div class="modal-overlay" id="rejectModal">
   <div class="modal">
-    <div class="modal-header"><h3>Reject Request</h3><button class="modal-close" onclick="closeModal('rejectModal')">✕</button></div>
+    <div class="modal-header"><h3>Reject Request</h3><button class="modal-close" onclick="closeModal('rejectModal')">â</button></div>
     <div class="modal-body">
       <p style="color:var(--muted);margin-bottom:12px;">Reason for rejection (optional):</p>
       <textarea class="form-input" id="rejectReason" rows="3"></textarea>
@@ -513,9 +511,9 @@ select.form-input{cursor:pointer;}
 <!-- 50/50 MODAL -->
 <div class="modal-overlay" id="conflictModal">
   <div class="modal">
-    <div class="modal-header"><h3>⚔️ 50/50 Conflict Warning</h3><button class="modal-close" onclick="closeModal('conflictModal')">✕</button></div>
+    <div class="modal-header"><h3>âï¸ 50/50 Conflict Warning</h3><button class="modal-close" onclick="closeModal('conflictModal')">â</button></div>
     <div class="modal-body">
-      <div class="info-box purple">Another staff member has already applied for Annual Leave on one or more of your selected dates. It will be a <strong>50/50 chance</strong> — the admin decides who gets approved.</div>
+      <div class="info-box purple">Another staff member has already applied for Annual Leave on one or more of your selected dates. It will be a <strong>50/50 chance</strong> â the admin decides who gets approved.</div>
       <div id="conflictDaysList" style="margin-top:12px;"></div>
     </div>
     <div class="modal-footer">
@@ -528,7 +526,7 @@ select.form-input{cursor:pointer;}
 <!-- STAFF ACTION MODAL -->
 <div class="modal-overlay" id="staffActionModal">
   <div class="modal" style="max-width:380px;">
-    <div class="modal-header"><h3 id="staffModalTitle">Confirm</h3><button class="modal-close" onclick="closeModal('staffActionModal')">✕</button></div>
+    <div class="modal-header"><h3 id="staffModalTitle">Confirm</h3><button class="modal-close" onclick="closeModal('staffActionModal')">â</button></div>
     <div class="modal-body"><p id="staffModalText" style="color:var(--muted);"></p></div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('staffActionModal')">Cancel</button>
@@ -667,7 +665,7 @@ async function login(){
     if(!accs.length){msg.innerHTML='<div class="msg msg-err">Username not found</div>';return;}
     const acc=accs[0];
     if(acc.password!==p){msg.innerHTML='<div class="msg msg-err">Incorrect password</div>';return;}
-    if(acc.status==='pending'){msg.innerHTML='<div class="msg msg-info">⏳ Your account is pending admin approval</div>';return;}
+    if(acc.status==='pending'){msg.innerHTML='<div class="msg msg-info">â³ Your account is pending admin approval</div>';return;}
     if(acc.status==='disabled'){msg.innerHTML='<div class="msg msg-err">Your account has been disabled</div>';return;}
     api(`staff_accounts?id=eq.${acc.id}`,{method:'PATCH',body:JSON.stringify({last_login:new Date().toISOString()})}).catch(()=>{});
     currentUser=acc;
@@ -691,7 +689,7 @@ async function register(){
     const ex=await api(`staff_accounts?username=eq.${encodeURIComponent(u)}&select=id`)||[];
     if(ex.length){msg.innerHTML='<div class="msg msg-err">Username already taken</div>';return;}
     await api('staff_accounts',{method:'POST',body:JSON.stringify({full_name:name,username:u,password:p,role:'staff',status:'pending'})});
-    msg.innerHTML='<div class="msg msg-ok">✅ Registration submitted! Wait for admin approval.</div>';
+    msg.innerHTML='<div class="msg msg-ok">â Registration submitted! Wait for admin approval.</div>';
     document.getElementById('regName').value='';
     document.getElementById('regUser').value='';
     document.getElementById('regPass').value='';
@@ -833,38 +831,38 @@ async function checkEligibility(){
   let okDates=[],conflictDates=[],blockedDates=[];
   for(const date of dates){
     const myShift=getShift(name,date);
-    if(!myShift||['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){
-      html+=`<div class="day-check-row skip"><span>📅 ${date}</span><span style="color:var(--muted);font-size:11px;">${myShift||'No shift'} — skipped</span></div>`;
+    if(myShift&&['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){
+      html+=`<div class="day-check-row skip"><span>ð ${date}</span><span style="color:var(--muted);font-size:11px;">${myShift} â skipped</span></div>`;
       continue;
     }
     const alreadyApplied=existing.find(r=>r.username===currentUser.username&&r.leave_date===date);
     if(alreadyApplied){
-      html+=`<div class="day-check-row skip"><span>📅 ${date}</span><span style="color:var(--orange);font-size:11px;">Already applied (${alreadyApplied.status})</span></div>`;
+      html+=`<div class="day-check-row skip"><span>ð ${date}</span><span style="color:var(--orange);font-size:11px;">Already applied (${alreadyApplied.status})</span></div>`;
       continue;
     }
     if(type==='AL'){
       const othersAL=existing.filter(r=>r.username!==currentUser.username&&r.leave_date===date&&r.leave_type==='AL');
       if(othersAL.length===0){
         okDates.push(date);
-        html+=`<div class="day-check-row ok"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">✅ First applicant</span></div>`;
+        html+=`<div class="day-check-row ok"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">â First applicant</span></div>`;
       }else if(othersAL.length===1){
         conflictDates.push(date);hasConflict=true;
-        html+=`<div class="day-check-row conflict"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--orange);font-size:11px;">⚠️ 50/50 — ${othersAL[0].staff_name} also applied</span></div>`;
+        html+=`<div class="day-check-row conflict"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--orange);font-size:11px;">â ï¸ 50/50 â ${othersAL[0].staff_name} also applied</span></div>`;
       }else{
         blockedDates.push(date);
-        html+=`<div class="day-check-row blocked"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--red);font-size:11px;">❌ Blocked — 2 requests already exist</span></div>`;
+        html+=`<div class="day-check-row blocked"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--red);font-size:11px;">â Blocked â 2 requests already exist</span></div>`;
       }
     }else if(type==='CL'){
       okDates.push(date);
-      html+=`<div class="day-check-row ok"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">✅ Casual Leave day</span></div>`;
+      html+=`<div class="day-check-row ok"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">â Casual Leave day</span></div>`;
     }else if(type==='CO'){
       const buddies=getStaffOnShift(date,myShift).filter(n=>n!==name);
       if(buddies.length===0){
         blockedDates.push(date);
-        html+=`<div class="day-check-row blocked"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--red);font-size:11px;">❌ No buddy on ${myShift} shift (Team Lead excluded)</span></div>`;
+        html+=`<div class="day-check-row blocked"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--red);font-size:11px;">â No buddy on ${myShift} shift (Team Lead excluded)</span></div>`;
       }else{
         okDates.push(date);
-        html+=`<div class="day-check-row ok"><span>📅 ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">✅ Buddy: ${buddies.join(', ')}</span></div>`;
+        html+=`<div class="day-check-row ok"><span>ð ${date} <span style="font-size:10px;opacity:.7;">(${myShift})</span></span><span style="color:var(--green);font-size:11px;">â Buddy: ${buddies.join(', ')}</span></div>`;
       }
     }
   }
@@ -875,16 +873,16 @@ async function checkEligibility(){
   }else if(balance&&validDates.length>balance.available){
     summaryHtml=`<div class="info-box red">${type} balance exceeded. Available: ${balance.available}, requested: ${validDates.length}, pending: ${balance.pending}, used: ${balance.used}, entitlement: ${balance.entitlement}.</div>`;
   }else if(validDates.length===0&&blockedDates.length>0){
-    summaryHtml='<div class="info-box red">❌ All selected days are blocked. Cannot submit.</div>';
+    summaryHtml='<div class="info-box red">â All selected days are blocked. Cannot submit.</div>';
   }else if(blockedDates.length>0){
     canSubmit=true;
-    summaryHtml=`<div class="info-box orange">⚠️ ${blockedDates.length} day(s) blocked (will be skipped). ${validDates.length} day(s) will be submitted.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
+    summaryHtml=`<div class="info-box orange">â ï¸ ${blockedDates.length} day(s) blocked (will be skipped). ${validDates.length} day(s) will be submitted.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
   }else if(hasConflict){
     canSubmit=true;
-    summaryHtml=`<div class="info-box purple">⚔️ ${conflictDates.length} day(s) have 50/50 conflict. Admin will decide. Click Submit to continue.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
+    summaryHtml=`<div class="info-box purple">âï¸ ${conflictDates.length} day(s) have 50/50 conflict. Admin will decide. Click Submit to continue.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
   }else if(validDates.length>0){
     canSubmit=true;
-    summaryHtml=`<div class="info-box green">✅ ${validDates.length} day(s) clear. Will be sent for admin approval.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
+    summaryHtml=`<div class="info-box green">â ${validDates.length} day(s) clear. Will be sent for admin approval.${balance?` ${type} available after submit: ${balance.available-validDates.length}.`:''}</div>`;
   }else{
     summaryHtml='<div class="info-box orange">No valid working days in selected range.</div>';
   }
@@ -897,7 +895,7 @@ async function submitLeave(){
   if(!pendingSubmitData) return;
   const {conflictDates}=pendingSubmitData;
   if(conflictDates.length>0){
-    const listHtml=conflictDates.map(d=>`<div style="font-size:12px;color:var(--orange);padding:3px 0;">📅 ${d}</div>`).join('');
+    const listHtml=conflictDates.map(d=>`<div style="font-size:12px;color:var(--orange);padding:3px 0;">ð ${d}</div>`).join('');
     document.getElementById('conflictDaysList').innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Conflict dates:</div>'+listHtml;
     document.getElementById('conflictModal').classList.add('open');
   }else{
@@ -915,7 +913,7 @@ async function submitLeaveConfirmed(){
   let submitted=0,skipped=0;
   for(const date of dates){
     const myShift=getShift(name,date);
-    if(!myShift||['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){skipped++;continue;}
+    if(myShift&&['WO','PH','SL','TAD','CL','AL','CO'].includes(myShift)){skipped++;continue;}
     if(existing.find(r=>r.username===currentUser.username&&r.leave_date===date)){skipped++;continue;}
     if(type==='AL'){
       const othersAL=existing.filter(r=>r.username!==currentUser.username&&r.leave_date===date&&r.leave_type==='AL');
@@ -947,7 +945,7 @@ async function submitLeaveConfirmed(){
       }catch(e){skipped++;}
     }
   }
-  toast(`✅ Submitted ${submitted} request(s)${skipped>0?`, ${skipped} skipped`:''}`, 'success');
+  toast(`â Submitted ${submitted} request(s)${skipped>0?`, ${skipped} skipped`:''}`, 'success');
   document.getElementById('leaveType').value='';
   document.getElementById('leaveStart').value='';
   document.getElementById('leaveEnd').value='';
@@ -964,9 +962,9 @@ async function loadMyLeaves(){
   el.innerHTML='<div class="empty-state"><div class="spinner"></div></div>';
   try{
     const leaves=await api(`leave_requests?username=eq.${encodeURIComponent(currentUser.username)}&order=leave_date.desc&select=*`)||[];
-    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">📋</div><p>No requests yet</p></div>';return;}
+    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">ð</div><p>No requests yet</p></div>';return;}
     el.innerHTML='<div class="req-list">'+leaves.map(l=>reqCard(l,false)).join('')+'</div>';
-  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">⚠️</div><p>Failed to load</p></div>';}
+  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">â ï¸</div><p>Failed to load</p></div>';}
 }
 
 async function loadPending(){
@@ -974,9 +972,9 @@ async function loadPending(){
   el.innerHTML='<div class="empty-state"><div class="spinner"></div></div>';
   try{
     const leaves=await api(`leave_requests?status=eq.pending&order=leave_date.asc&select=*`)||[];
-    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">✅</div><p>No pending requests</p></div>';return;}
+    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">â</div><p>No pending requests</p></div>';return;}
     el.innerHTML='<div class="req-list">'+leaves.map(l=>reqCard(l,true)).join('')+'</div>';
-  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">⚠️</div><p>Failed to load</p></div>';}
+  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">â ï¸</div><p>Failed to load</p></div>';}
 }
 
 async function loadPendingCount(){
@@ -1003,9 +1001,9 @@ async function loadAllLeaves(){
       <div class="stat-card green"><div class="stat-val">${a}</div><div class="stat-lab">Approved</div></div>
       <div class="stat-card red"><div class="stat-val">${r}</div><div class="stat-lab">Rejected</div></div>
       <div class="stat-card purple"><div class="stat-val">${c}</div><div class="stat-lab">Conflicts</div></div>`;
-    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">📋</div><p>No requests yet</p></div>';return;}
+    if(!leaves.length){el.innerHTML='<div class="empty-state"><div class="ei">ð</div><p>No requests yet</p></div>';return;}
     el.innerHTML='<div class="req-list">'+leaves.map(l=>reqCard(l,true)).join('')+'</div>';
-  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">⚠️</div><p>Failed to load</p></div>';}
+  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">â ï¸</div><p>Failed to load</p></div>';}
 }
 
 async function getLeaveBalanceSummary(username,staffName,type,year){
@@ -1033,7 +1031,7 @@ async function loadMyLeaveBalanceBox(){
     el.innerHTML=`<div class="cards-row" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:0;">
       ${rows.map(r=>`<div class="stat-card ${r.type==='AL'?'green':'blue'}">
         <div class="stat-val">${r.available}</div>
-        <div class="stat-lab">${r.type} available of ${r.entitlement} · pending ${r.pending} · used ${r.used}</div>
+        <div class="stat-lab">${r.type} available of ${r.entitlement} Â· pending ${r.pending} Â· used ${r.used}</div>
       </div>`).join('')}
     </div>`;
   }catch(e){
@@ -1108,9 +1106,9 @@ function reqCard(l,showActions){
   return `<div class="req-card ${sc}">
     <div>
       <div class="req-name">${l.staff_name}</div>
-      <div class="req-meta">📅 ${l.leave_date} &nbsp;|&nbsp; Shift: <strong>${shift}</strong> &nbsp;|&nbsp; Applied: ${new Date(l.created_at).toLocaleDateString()}</div>
+      <div class="req-meta">ð ${l.leave_date} &nbsp;|&nbsp; Shift: <strong>${shift}</strong> &nbsp;|&nbsp; Applied: ${new Date(l.created_at).toLocaleDateString()}</div>
       <div><span class="req-type type-${l.leave_type}">${l.leave_type} ${leaveTypeLabel(l.leave_type)}</span></div>
-      ${l.is_conflict?'<div class="conflict-note">⚔️ 50/50 conflict — admin will decide</div>':''}
+      ${l.is_conflict?'<div class="conflict-note">âï¸ 50/50 conflict â admin will decide</div>':''}
       ${l.reason?`<div class="reason-note">"${l.reason}"</div>`:''}
       ${l.manager_note?`<div class="reason-note" style="color:var(--amber);">Admin note: "${l.manager_note}"</div>`:''}
     </div>
@@ -1133,7 +1131,7 @@ async function approveLeave(id){
     if(leave&&['AL','CL','CO'].includes(leave.leave_type)){
       await saveScheduleCell(leave.staff_name,leave.leave_date,leave.leave_type);
     }
-    toast('Approved ✅','success');loadPending();loadPendingCount();
+    toast('Approved â','success');loadPending();loadPendingCount();
   }catch(e){toast('Failed: '+e.message,'error');}
 }
 function openReject(id){reviewingId=id;document.getElementById('rejectReason').value='';document.getElementById('rejectModal').classList.add('open');}
@@ -1175,7 +1173,7 @@ function renderTeamCalendar(){
   </th>`;
   html+='</tr></thead><tbody>';
 
-  // Count row — styled like rows 38-40 in Excel, stacked M/A/N per day
+  // Count row â styled like rows 38-40 in Excel, stacked M/A/N per day
   html+='<tr style="background:var(--surface3);">';
   html+='<td class="sticky-col" style="background:var(--surface3);"><div style="font-size:10px;color:#60a5fa;font-weight:700;">Morning</div><div style="font-size:10px;color:var(--amber);font-weight:700;">Afternoon</div><div style="font-size:10px;color:#a78bfa;font-weight:700;">Night</div></td>';
   for(let d=1;d<=daysInMonth;d++){
@@ -1191,7 +1189,7 @@ function renderTeamCalendar(){
 
   // Staff rows
   ALL_STAFF_NAMES.forEach(name=>{
-    html+=`<tr><td class="sticky-col" style="background:var(--surface2);">${name}${name===TEAM_LEAD?' 👑':''}</td>`;
+    html+=`<tr><td class="sticky-col" style="background:var(--surface2);">${name}${name===TEAM_LEAD?' ð':''}</td>`;
     for(let d=1;d<=daysInMonth;d++){
       const ds=teamYear+'-'+ms+'-'+String(d).padStart(2,'0');
       const s=getShift(name,ds)||'';
@@ -1318,10 +1316,10 @@ async function loadStaffAccounts(){
   el.innerHTML='<div class="empty-state"><div class="spinner"></div></div>';
   try{
     const accs=await api('staff_accounts?order=created_at.asc&select=*')||[];
-    if(!accs.length){el.innerHTML='<div class="empty-state"><div class="ei">👤</div><p>No accounts yet</p></div>';return;}
+    if(!accs.length){el.innerHTML='<div class="empty-state"><div class="ei">ð¤</div><p>No accounts yet</p></div>';return;}
     const pending=accs.filter(a=>a.status==='pending');
     let html='';
-    if(pending.length) html+=`<div class="info-box orange" style="margin-bottom:16px;">⏳ ${pending.length} registration(s) awaiting approval</div>`;
+    if(pending.length) html+=`<div class="info-box orange" style="margin-bottom:16px;">â³ ${pending.length} registration(s) awaiting approval</div>`;
     html+=`<div style="overflow-x:auto;border-radius:10px;border:1px solid var(--border);">
     <table class="staff-table"><thead><tr>
       <th>Full Name</th><th>Username</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th>
@@ -1340,7 +1338,7 @@ async function loadStaffAccounts(){
     </tr>`).join('')}
     </tbody></table></div>`;
     el.innerHTML=html;
-  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">⚠️</div><p>Failed to load</p></div>';}
+  }catch(e){el.innerHTML='<div class="empty-state"><div class="ei">â ï¸</div><p>Failed to load</p></div>';}
 }
 
 function staffAction(id,type,name){
@@ -1359,7 +1357,7 @@ async function confirmStaffAction(){
   const newStatus=staffActionType==='activate'?'active':'disabled';
   try{
     await api(`staff_accounts?id=eq.${staffActionId}`,{method:'PATCH',body:JSON.stringify({status:newStatus})});
-    toast(staffActionType==='activate'?'Account approved ✅':'Account disabled','success');
+    toast(staffActionType==='activate'?'Account approved â':'Account disabled','success');
     await loadStaffList();loadStaffAccounts();loadPendingCount();
   }catch(e){toast('Failed: '+e.message,'error');}
 }
@@ -1377,11 +1375,11 @@ async function changePassword(){
   try{
     await api(`staff_accounts?id=eq.${currentUser.id}`,{method:'PATCH',body:JSON.stringify({password:nw})});
     currentUser.password=nw;
-    msg.innerHTML='<div class="msg msg-ok">✅ Password updated successfully</div>';
+    msg.innerHTML='<div class="msg msg-ok">â Password updated successfully</div>';
     document.getElementById('cpCurrent').value='';
     document.getElementById('cpNew').value='';
     document.getElementById('cpConfirm').value='';
-    toast('Password updated ✅','success');
+    toast('Password updated â','success');
   }catch(e){msg.innerHTML=`<div class="msg msg-err">${e.message}</div>`;}
 }
 
@@ -1407,7 +1405,7 @@ function exportSchedule(){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Schedule');
   XLSX.writeFile(wb,sel==='all'?'team_schedule_2026.xlsx':`schedule_${MONTHS[parseInt(sel)]}_2026.xlsx`);
-  toast('Exported ✅','success');
+  toast('Exported â','success');
 }
 
 function importSchedule(e){
@@ -1429,9 +1427,9 @@ function importSchedule(e){
           if(shift){SCHEDULE[n+'|'+ds]=String(shift).trim();count++;}
         });
       });
-      document.getElementById('importResult').innerHTML=`<div class="info-box green">✅ Imported ${count} entries from ${rows.length} days</div>`;
+      document.getElementById('importResult').innerHTML=`<div class="info-box green">â Imported ${count} entries from ${rows.length} days</div>`;
       toast('Schedule imported','success');
-    }catch(err){document.getElementById('importResult').innerHTML=`<div class="info-box red">❌ ${err.message}</div>`;}
+    }catch(err){document.getElementById('importResult').innerHTML=`<div class="info-box red">â ${err.message}</div>`;}
   };
   reader.readAsArrayBuffer(file);
 }
@@ -1453,7 +1451,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 function toast(msg,type='info'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'ℹ️'}</span><span>${msg}</span>`;
+  el.innerHTML=`<span>${type==='success'?'â':type==='error'?'â':'â¹ï¸'}</span><span>${msg}</span>`;
   document.getElementById('toastContainer').appendChild(el);
   setTimeout(()=>el.remove(),4000);
 }

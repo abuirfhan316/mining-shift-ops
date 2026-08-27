@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mining Shift Ops</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0c10'/%3E%3Cpath d='M16 45 31 16l17 32' fill='none' stroke='%23f59e0b' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M20 38h25' stroke='%23e2e4ed' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#0a0c10;--surface:#111318;--surface2:#181b22;--surface3:#1e2130;
@@ -88,7 +90,9 @@ select.form-input{cursor:pointer;}
 .shift-WO{background:var(--surface3);color:var(--muted);}
 .shift-AL{background:rgba(160,43,147,.18);color:#d9a8d3;}
 .shift-CO,.shift-CL{background:rgba(116,167,124,.1);color:#b2d8ba;}
-.shift-PH{background:var(--red-dim);color:var(--red);}
+.shift-SL{background:rgba(116,167,124,.1);color:#b2d8ba;}
+.shift-PH,.shift-Holiday{background:var(--red-dim);color:var(--red);}
+.shift-empty{background:transparent;color:var(--muted);}
 .shift-other{background:var(--surface3);color:var(--muted);}
 .leave-dot{display:inline-flex;font-size:9px;font-weight:600;padding:1px 5px;border-radius:6px;margin-top:2px;}
 .leave-pending{background:var(--orange-dim);color:var(--orange);}
@@ -166,7 +170,15 @@ select.form-input{cursor:pointer;}
 .count-label.afternoon{color:#8fc99a;}
 .count-label.night{color:#4cc3f5;}
 .builder-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
-.builder-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.builder-actions{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;}
+.schedule-transfer{position:relative;display:inline-flex;flex:0 0 auto;vertical-align:top;}
+.schedule-transfer>.btn{position:relative;z-index:2;}
+.schedule-transfer-menu{position:absolute;left:0;right:auto;top:calc(100% + 6px);z-index:50;width:310px;max-width:calc(100vw - 20px);max-height:calc(100vh - 20px);overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);display:none;}
+.schedule-transfer.open .schedule-transfer-menu{display:block;}
+.schedule-transfer-section{padding:10px;border-bottom:1px solid var(--border);}
+.schedule-transfer-section:last-child{border-bottom:0;}
+.schedule-transfer-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;}
+.schedule-transfer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
 .builder-table{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap;width:max-content;min-width:100%;}
 .builder-table th,.builder-table td{border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);text-align:center;}
 .builder-table th{background:var(--surface3);font-size:10px;color:var(--muted);font-weight:600;position:sticky;top:0;z-index:3;padding:6px 5px;}
@@ -302,10 +314,10 @@ select.form-input{cursor:pointer;}
         <div class="sidebar-label">Admin</div>
         <button class="nav-item" id="nav-pending" onclick="switchView('pending')">⏳ Pending <span class="nav-badge" id="pendingBadge">0</span></button>
         <button class="nav-item" id="nav-allleaves" onclick="switchView('allleaves')">📊 All Requests</button>
-        <button class="nav-item" id="nav-balances" onclick="switchView('balances')">🧮 Leave Balances</button>
+        <button class="nav-item" id="nav-balances" onclick="switchView('balances')">🗓 Leave Scheduler</button>
+        <button class="nav-item" id="nav-leavebalance" onclick="switchView('leavebalance')">🧮 Leave Balance</button>
         <button class="nav-item" id="nav-builder" onclick="switchView('builder')">🗓 Schedule Builder</button>
         <button class="nav-item" id="nav-staff" onclick="switchView('staff')">👤 Staff Accounts</button>
-        <button class="nav-item" id="nav-importexport" onclick="switchView('importexport')">📂 Import / Export</button>
       </div>
     </div>
     <div class="content">
@@ -399,14 +411,27 @@ select.form-input{cursor:pointer;}
 
       <!-- LEAVE BALANCES -->
       <div class="view" id="view-balances">
-        <div class="view-title">Leave Balances</div>
-        <div class="view-sub">Every staff gets 30 days Annual Leave for 2027 (Jan 1 - Dec 31) automatically. Add extra AL / CL on top here, set expiry dates, and review pending, used, and available days.</div>
+        <div class="view-title">Leave Scheduler</div>
+        <div class="view-sub">Every staff gets 30 days Annual Leave for 2027 automatically. Set the start and expiry dates for each AL / CL entitlement; rostered leave is counted only inside that date window.</div>
         <div class="month-nav">
           <button onclick="balanceYear--;syncBalanceYearSelect();loadLeaveBalances()">‹ Prev Year</button>
           <select class="form-input" id="balanceYearSelect" style="width:120px;text-align:center;" onchange="balanceYear=Number(this.value);loadLeaveBalances()"></select>
           <button onclick="balanceYear++;syncBalanceYearSelect();loadLeaveBalances()">Next Year ›</button>
         </div>
         <div id="balanceContent"><div class="empty-state"><div class="spinner"></div></div></div>
+      </div>
+
+      <!-- LEAVE BALANCE REPORT -->
+      <div class="view" id="view-leavebalance">
+        <div class="view-title">Leave Balance</div>
+        <div class="view-sub">Breakdown of each staff member's leave entitlement, usage, and available balance</div>
+        <div class="month-nav">
+          <button onclick="leaveReportYear--;syncLeaveReportYearSelect();loadLeaveBalanceReport()">‹ Prev Year</button>
+          <select class="form-input" id="leaveReportYearSelect" style="width:120px;text-align:center;" onchange="leaveReportYear=Number(this.value);loadLeaveBalanceReport()"></select>
+          <button onclick="leaveReportYear++;syncLeaveReportYearSelect();loadLeaveBalanceReport()">Next Year ›</button>
+          <button class="btn btn-primary btn-sm" onclick="exportLeaveBalancePdf()">Export PDF Report</button>
+        </div>
+        <div id="leaveBalanceReportContent"><div class="empty-state"><div class="spinner"></div></div></div>
       </div>
 
       <!-- TEAM SCHEDULE -->
@@ -434,11 +459,53 @@ select.form-input{cursor:pointer;}
             <select class="form-input" id="builderMonthSelect" style="width:145px;text-align:center;" onchange="onBuilderMonthYearChange()"></select>
             <select class="form-input" id="builderYearSelect" style="width:105px;text-align:center;" onchange="onBuilderMonthYearChange()"></select>
             <button class="btn btn-secondary btn-sm" onclick="nextBuilderMonth()">Next ›</button>
+            <div class="schedule-transfer" id="builderImportMenu">
+              <button class="btn btn-secondary btn-sm" onclick="toggleBuilderTransferMenu(event,'builderImportMenu')">Import ▾</button>
+              <div class="schedule-transfer-menu" onclick="event.stopPropagation()">
+                <div class="schedule-transfer-section">
+                  <div class="schedule-transfer-title">Monthly Import</div>
+                  <div class="schedule-transfer-row">
+                    <select class="form-input" id="importMonthlyYear"></select>
+                    <select class="form-input" id="importMonthlyMonth"></select>
+                  </div>
+                  <button class="btn btn-primary btn-full btn-sm" onclick="triggerScopedImport('month')">Import Month</button>
+                </div>
+                <div class="schedule-transfer-section">
+                  <div class="schedule-transfer-title">Yearly Import</div>
+                  <div class="form-group" style="margin-bottom:8px;">
+                    <select class="form-input" id="importYearlyYear"></select>
+                  </div>
+                  <button class="btn btn-primary btn-full btn-sm" onclick="triggerScopedImport('year')">Import Full Year</button>
+                </div>
+              </div>
+            </div>
+            <div class="schedule-transfer" id="builderExportMenu">
+              <button class="btn btn-secondary btn-sm" onclick="toggleBuilderTransferMenu(event,'builderExportMenu')">Export ▾</button>
+              <div class="schedule-transfer-menu" onclick="event.stopPropagation()">
+                <div class="schedule-transfer-section">
+                  <div class="schedule-transfer-title">Monthly Export</div>
+                  <div class="schedule-transfer-row">
+                    <select class="form-input" id="exportMonthlyYear"></select>
+                    <select class="form-input" id="exportMonthlyMonth"></select>
+                  </div>
+                  <button class="btn btn-primary btn-full btn-sm" onclick="exportScopedSchedule('month')">Export Month</button>
+                </div>
+                <div class="schedule-transfer-section">
+                  <div class="schedule-transfer-title">Yearly Export</div>
+                  <div class="form-group" style="margin-bottom:8px;">
+                    <select class="form-input" id="exportYearlyYear"></select>
+                  </div>
+                  <button class="btn btn-primary btn-full btn-sm" onclick="exportScopedSchedule('year')">Export Full Year</button>
+                </div>
+              </div>
+            </div>
             <button class="btn btn-secondary btn-sm" onclick="newBuilderSchedule()">New Schedule</button>
             <button class="btn btn-primary btn-sm" onclick="addBuilderStaff()">+ Add Staff</button>
           </div>
         </div>
         <div id="builderContent"></div>
+        <input type="file" id="scheduleFile" accept=".xlsx" style="display:none" onchange="importSchedule(event)">
+        <div id="importResult" style="margin-top:10px;"></div>
       </div>
 
       <!-- STAFF ACCOUNTS -->
@@ -446,51 +513,6 @@ select.form-input{cursor:pointer;}
         <div class="view-title">Staff Accounts</div>
         <div class="view-sub">Approve registrations and manage staff access</div>
         <div id="staffContent"><div class="empty-state"><div class="spinner"></div></div></div>
-      </div>
-
-      <!-- IMPORT / EXPORT -->
-      <div class="view" id="view-importexport">
-        <div class="view-title">Import / Export</div>
-        <div class="view-sub">Download or upload schedule and leave data</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:780px;margin-bottom:20px;">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;">
-            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">⬇ Export Schedule</div>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Download team schedule as Excel</p>
-            <div class="form-group">
-              <label class="form-label">Month</label>
-              <select class="form-input" id="exportMonth">
-                <option value="all">Full Year 2027</option>
-                <option value="0">January</option><option value="1">February</option>
-                <option value="2">March</option><option value="3">April</option>
-                <option value="4">May</option><option value="5">June</option>
-                <option value="6">July</option><option value="7">August</option>
-                <option value="8">September</option><option value="9">October</option>
-                <option value="10">November</option><option value="11">December</option>
-              </select>
-            </div>
-            <button class="btn btn-primary btn-full" onclick="exportSchedule()">⬇ Export to Excel</button>
-          </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;">
-            <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">⬆ Import Schedule</div>
-            <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Upload Excel to update schedule</p>
-            <div class="drop-zone" onclick="document.getElementById('scheduleFile').click()">
-              <div style="font-size:26px;margin-bottom:6px;">📂</div>
-              <p style="color:var(--muted);font-size:13px;"><strong style="color:var(--amber);">Click to upload</strong> or drag & drop .xlsx</p>
-              <p style="color:var(--muted);font-size:11px;margin-top:6px;">Standard export (<strong style="color:var(--text);">Date</strong> rows) or MadZ roster (<strong style="color:var(--text);">NAME</strong> rows × dated columns, e.g. Morning · Afternoon · Overnight · Day Off · AL · CL)</p>
-            </div>
-            <input type="file" id="scheduleFile" accept=".xlsx" style="display:none" onchange="importSchedule(event)">
-            <div id="importResult" style="margin-top:10px;"></div>
-          </div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:780px;">
-          <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:12px;">📋 Export Leave Requests</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-secondary" onclick="exportLeaves('all')">All Requests</button>
-            <button class="btn btn-secondary" onclick="exportLeaves('pending')">Pending Only</button>
-            <button class="btn btn-secondary" onclick="exportLeaves('approved')">Approved Only</button>
-            <button class="btn btn-secondary" onclick="exportLeaves('rejected')">Rejected Only</button>
-          </div>
-        </div>
       </div>
 
       <!-- CHANGE PASSWORD -->
@@ -635,6 +657,7 @@ let calYear=APP_YEAR,calMonth=new Date().getMonth();
 let teamYear=APP_YEAR,teamMonth=new Date().getMonth();
 let builderYear=APP_YEAR,builderMonth=new Date().getMonth();
 let balanceYear=APP_YEAR;
+let pendingImportScope=null;
 let reviewingId=null,staffActionId=null,staffActionType=null,pendingSubmitData=null;
 
 async function api(path,opts={}){
@@ -765,7 +788,7 @@ function logout(){
 }
 
 function switchView(v){
-  if(['pending','allleaves','balances','builder','staff','importexport'].includes(v)&&currentUser.role!=='admin'){
+  if(['pending','allleaves','balances','leavebalance','builder','staff'].includes(v)&&currentUser.role!=='admin'){
     toast('Admin access only','error');
     v='team';
   }
@@ -780,6 +803,7 @@ function switchView(v){
   if(v==='pending') loadPending();
   if(v==='allleaves') loadAllLeaves();
   if(v==='balances') loadLeaveBalances();
+  if(v==='leavebalance') loadLeaveBalanceReport();
   if(v==='team') renderTeamCalendar();
   if(v==='builder') renderScheduleBuilder();
   if(v==='staff') loadStaffAccounts();
@@ -1121,30 +1145,71 @@ async function bulkDeleteLeaves(){
 }
 async function getLeaveBalanceSummary(username,staffName,type,year){
   const baseDays=type===BASE_ANNUAL_LEAVE_TYPE?BASE_ANNUAL_LEAVE_DAYS:0;
-  let adminDays=0,batches=[];
-  if(baseDays>0) batches.push({days:baseDays,expiry:`${year}-12-31`,source:'Base Annual Leave'});
+  let adminDays=0,adminBatches=[];
   try{
-    const bal=await api(`leave_balances?username=eq.${encodeURIComponent(username)}&leave_type=eq.${type}&year=eq.${year}&select=entitlement_days,expiry_date`)||[];
+    const bal=await api(`leave_balances?username=eq.${encodeURIComponent(username)}&leave_type=eq.${type}&year=eq.${year}&select=entitlement_days,start_date,expiry_date`)||[];
     bal.forEach(b=>{
       const days=Number(b.entitlement_days||0);
       adminDays+=days;
-      batches.push({days,expiry:b.expiry_date?b.expiry_date.slice(0,10):null,source:'Admin Added'});
+      adminBatches.push({days,start:b.start_date?b.start_date.slice(0,10):`${year}-01-01`,expiry:b.expiry_date?b.expiry_date.slice(0,10):null});
     });
   }catch(e){}
-  const entitlement=baseDays+adminDays;
-  let requests=[];
-  try{
-    requests=await api(`leave_requests?username=eq.${encodeURIComponent(username)}&leave_type=eq.${type}&leave_date=gte.${year}-01-01&leave_date=lte.${year}-12-31&status=neq.rejected&select=status,leave_date`)||[];
-  }catch(e){}
-  const pending=requests.filter(r=>r.status==='pending').length;
-  const approvedDates=new Set(requests.filter(r=>r.status==='approved').map(r=>r.leave_date));
-  const requestUsed=approvedDates.size;
-  const scheduleUsed=countScheduleLeaveDays(staffName,type,year,approvedDates);
-  const used=requestUsed+scheduleUsed;
+  const batches=[];
+  if(baseDays>0) batches.push({days:baseDays,start:`${year}-01-01`,expiry:`${year}-12-31`,source:'Base Annual Leave',carryForward:false});
+  let carryForwardRemaining=type===BASE_ANNUAL_LEAVE_TYPE?10:0;
+  adminBatches.forEach(b=>{
+    if(type===BASE_ANNUAL_LEAVE_TYPE){
+      const carryDays=Math.min(b.days,carryForwardRemaining);
+      if(carryDays){
+        batches.push({days:carryDays,start:b.start,expiry:b.expiry||`${year}-12-31`,source:'Carry-Forward Annual Leave',carryForward:true});
+        carryForwardRemaining-=carryDays;
+      }
+      const excessDays=b.days-carryDays;
+      if(excessDays) batches.push({days:excessDays,start:b.start,expiry:`${year}-12-31`,source:'Annual Leave over 10-day limit',carryForward:false});
+    }else if(b.days){
+      batches.push({days:b.days,start:b.start,expiry:b.expiry,source:'Comp-Off',carryForward:false});
+    }
+  });
+  const entitlement=batches.reduce((sum,b)=>sum+Number(b.days||0),0);
+  const pending=0;
+  const requestUsed=0;
+  const scheduledDates=new Set();
+  batches.filter(b=>Number(b.days||0)>0).forEach(b=>{
+    dateRange(b.start||`${year}-01-01`,b.expiry||`${year}-12-31`).forEach(ds=>{
+      if(getShift(staffName,ds)===type) scheduledDates.add(ds);
+    });
+  });
+  const scheduleUsed=scheduledDates.size;
+  const used=scheduleUsed;
   const today=new Date(new Date().toDateString());
-  const activeEntitlement=batches.some(b=>Number(b.days||0)>0&&(!b.expiry||new Date(b.expiry+'T12:00:00')>=today));
+  batches.forEach(b=>{
+    b.daysRemaining=b.expiry===null?null:Math.ceil((new Date(b.expiry+'T12:00:00')-today)/86400000);
+    b.expired=Number(b.daysRemaining)<0;
+  });
+  let usedAgainstExpired=used,expiredDays=0;
+  batches.filter(b=>b.expired).forEach(b=>{
+    const consumed=Math.min(usedAgainstExpired,Number(b.days||0));
+    usedAgainstExpired-=consumed;
+    b.unusedDays=Number(b.days||0)-consumed;
+    expiredDays+=b.unusedDays;
+  });
+  const activeEntitlement=entitlement-batches.filter(b=>b.expired).reduce((sum,b)=>sum+Number(b.days||0),0);
   const allExpired=batches.length>0&&!activeEntitlement;
-  return {username,staffName,type,year,baseDays,adminDays,entitlement,pending,used,requestUsed,scheduleUsed,batches,allExpired,available:Math.max(entitlement-pending-used,0)};
+  return {username,staffName,type,year,baseDays,adminDays,entitlement,pending,used,requestUsed,scheduleUsed,batches,allExpired,expiredDays,available:Math.max(entitlement-used-expiredDays,0)};
+}
+
+function expiryBadge(batch){
+  if(batch.expiry===null) return '<span style="color:var(--muted);">No expiry date</span>';
+  if(batch.expired){
+    const daysAgo=Math.abs(batch.daysRemaining);
+    return `<span style="color:var(--red);font-weight:700;">Expired ${batch.expiry} · ${daysAgo} day${daysAgo===1?'':'s'} ago</span>`;
+  }
+  const color=batch.daysRemaining<=7?'var(--red)':batch.daysRemaining<=30?'var(--orange)':'var(--muted)';
+  const emphasis=batch.daysRemaining<=30?'font-weight:700;':'';
+  return `<span style="color:${color};${emphasis}">Expires ${batch.expiry} · ${batch.daysRemaining} day${batch.daysRemaining===1?'':'s'} remaining</span>`;
+}
+function batchPeriod(batch){
+  return batch.start?` from ${batch.start}`:'';
 }
 
 let myBalanceYear=APP_YEAR;
@@ -1167,23 +1232,18 @@ async function loadMyLeaveBalanceBox(){
     <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--border);">
     <table class="staff-table" style="width:100%;">
       <thead><tr>
-        <th>Type</th><th>Base</th><th>Admin Added</th><th>Total</th><th>Pending</th><th>Used</th><th>Available</th>
+        <th>Type</th><th>Base</th><th>Admin Added</th><th>Total</th><th>Used</th><th>Available Total</th>
       </tr></thead>
       <tbody>
       ${rows.map(r=>{
-        const activeExpiries=r.batches.filter(b=>Number(b.days||0)>0&&b.expiry).map(b=>b.expiry);
-        const soonest=activeExpiries.reduce((a,b)=>(!a||b<a)?b:a,null);
-        const today=new Date(new Date().toDateString());
-        const daysLeft=soonest?Math.ceil((new Date(soonest+'T12:00:00')-today)/86400000):null;
-        const expiryText=r.batches.length?r.batches.filter(b=>Number(b.days||0)>0).map(b=>`${b.source}: ${b.expiry||'No expiry'}`).join(' | '):'No entitlement';
+        const expiryText=r.batches.filter(b=>Number(b.expired?b.unusedDays:b.days)>0).map(b=>{const days=b.expired?b.unusedDays:b.days;return `<div>${days} day${days===1?'':'s'} · ${b.source}${batchPeriod(b)} · ${expiryBadge(b)}</div>`;}).join('')||'<div>No entitlement</div>';
         return `<tr>
           <td><span class="req-type type-${r.type}">${r.type} ${leaveTypeLabel(r.type)}</span></td>
           <td>${r.baseDays}</td>
           <td>${r.adminDays}</td>
           <td><strong>${r.entitlement}</strong></td>
-          <td style="color:var(--orange);">${r.pending}</td>
           <td style="color:var(--green);">${r.used}${r.scheduleUsed?` <span style="color:var(--muted);font-size:11px;">(${r.scheduleUsed} scheduled)</span>`:''}</td>
-          <td style="color:${r.available>0?'var(--blue)':'var(--red)'};"><strong>${r.available}</strong>${daysLeft!==null&&daysLeft<=30?` <span style="color:var(--orange);font-size:11px;">(${daysLeft}d left)</span>`:''}${r.allExpired?` <span style="color:var(--red);font-size:11px;">Expired</span>`:''}<div style="color:var(--muted);font-size:11px;margin-top:3px;">${expiryText}</div></td>
+          <td style="color:${r.available>0?'var(--blue)':'var(--red)'};"><strong>${r.available}</strong>${r.expiredDays?` <span style="color:var(--red);font-size:11px;">(${r.expiredDays} expired)</span>`:''}<div style="color:var(--muted);font-size:11px;margin-top:3px;">${expiryText}</div></td>
         </tr>`;
       }).join('')}
       </tbody>
@@ -1196,6 +1256,7 @@ async function loadMyLeaveBalanceBox(){
 }
 
 const YEAR_RANGE=(()=>{const arr=[];for(let y=APP_YEAR-2;y<=APP_YEAR+4;y++)arr.push(y);return arr;})();
+let leaveReportYear=APP_YEAR;
 function syncBalanceYearSelect(){
   const sel=document.getElementById('balanceYearSelect');
   if(!sel) return;
@@ -1203,6 +1264,77 @@ function syncBalanceYearSelect(){
     sel.innerHTML=YEAR_RANGE.map(y=>`<option value="${y}">${y}</option>`).join('');
   }
   sel.value=String(balanceYear);
+}
+function syncLeaveReportYearSelect(){
+  const sel=document.getElementById('leaveReportYearSelect');
+  if(!sel) return;
+  if(!sel.options.length) sel.innerHTML=YEAR_RANGE.map(y=>`<option value="${y}">${y}</option>`).join('');
+  sel.value=String(leaveReportYear);
+}
+async function getLeaveBalanceReportRows(year){
+  const accs=await api('staff_accounts?status=eq.active&order=full_name.asc&select=full_name,username,role')||[];
+  const rows=[];
+  for(const a of accs){
+    for(const type of TRACKED_LEAVE_TYPES){
+      const r=await getLeaveBalanceSummary(a.username,a.full_name,type,year);
+      rows.push({staff:a.full_name,username:a.username,type,base:r.baseDays,added:r.adminDays,total:r.entitlement,used:r.used,available:r.available,expiryWarning:r.batches.some(b=>b.daysRemaining!==null&&b.daysRemaining>=0&&b.daysRemaining<=30),expiryText:r.batches.filter(b=>(b.expired?b.unusedDays:b.days)>0).map(b=>{const days=b.expired?b.unusedDays:b.days;return `${days}d ${b.source}: ${b.start||''}${b.start?' to ':''}${b.expiry||'No expiry'}${b.daysRemaining===null?'':b.daysRemaining<0?` (expired ${Math.abs(b.daysRemaining)}d ago)`: ` (${b.daysRemaining}d left)`}`;}).join('; ')});
+    }
+  }
+  return rows;
+}
+async function loadLeaveBalanceReport(){
+  const el=document.getElementById('leaveBalanceReportContent');
+  if(!el) return;
+  syncLeaveReportYearSelect();
+  el.innerHTML='<div class="empty-state"><div class="spinner"></div></div>';
+  try{
+    const rows=await getLeaveBalanceReportRows(leaveReportYear);
+    el.innerHTML=`<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px;"><table class="staff-table"><thead><tr><th>Staff</th><th>Type</th><th>Base</th><th>Admin Added</th><th>Total</th><th>Used</th><th>Available Total</th><th>Expiry Date / Days Remaining</th></tr></thead><tbody>${rows.map(r=>`<tr><td><strong>${r.staff}</strong><br><span style="color:var(--muted);font-size:11px;">${r.username}</span></td><td><span class="req-type type-${r.type}">${r.type} ${leaveTypeLabel(r.type)}</span></td><td>${r.base}</td><td>${r.added}</td><td><strong>${r.total}</strong></td><td style="color:var(--green);">${r.used}</td><td style="color:${r.available>0?'var(--blue)':'var(--red)'};"><strong>${r.available}</strong></td><td style="font-size:11px;color:${r.expiryWarning?'var(--orange)':'var(--muted)'};">${r.expiryText||'No expiry date'}</td></tr>`).join('')}</tbody></table></div>`;
+  }catch(e){el.innerHTML=`<div class="info-box red">Leave balance report could not load. ${e.message}</div>`;}
+}
+async function exportLeaveBalancePdf(){
+  if(currentUser.role!=='admin'){toast('Admin access only','error');return;}
+  try{
+    const rows=await getLeaveBalanceReportRows(leaveReportYear);
+    const JsPDF=window.jspdf&&window.jspdf.jsPDF;
+    if(!JsPDF) throw new Error('PDF library is unavailable');
+    const doc=new JsPDF({orientation:'portrait',unit:'pt',format:'a4'});
+    const pageWidth=doc.internal.pageSize.getWidth(),left=42,right=42,tableWidth=pageWidth-left-right;
+    const headers=['Leave Type','Total','Used','Available Total','Expiry Date / Days Remaining'];
+    const widths=[105,55,55,65,tableWidth-280];
+    const pageHeight=doc.internal.pageSize.getHeight();
+    let y=72;
+    const drawTableHeader=()=>{
+      doc.setFillColor(35,38,48);doc.setTextColor(255,255,255);doc.setFontSize(9);
+      let x=left;headers.forEach((h,i)=>{doc.rect(x,y-12,widths[i],22,'F');doc.text(h,x+5,y);x+=widths[i];});
+      doc.setTextColor(30,30,30);y+=24;
+    };
+    const total=rows.reduce((sum,r)=>sum+r.total,0),used=rows.reduce((sum,r)=>sum+r.used,0),available=rows.reduce((sum,r)=>sum+r.available,0);
+    doc.setFontSize(16);doc.setFont(undefined,'bold');doc.text(`Leave Balance Report - ${leaveReportYear}`,left,28);doc.setFont(undefined,'normal');
+    doc.setFontSize(8);doc.text(`Available Total: ${available}  |  Total: ${total}  |  Used: ${used}`,left,43);
+    doc.text(`Calculated from scheduled AL/CL shifts. Generated ${new Date().toLocaleDateString()}`,left,55);
+    for(let i=0;i<rows.length;i+=2){
+      const group=rows.slice(i,i+2),staff=group[0];
+      if(y>pageHeight-90){doc.addPage();y=48;}
+      doc.setFontSize(11);doc.setFont(undefined,'bold');doc.text(`${staff.staff} (${staff.username})`,left,y);doc.setFont(undefined,'normal');
+      y+=18;doc.setFontSize(9);drawTableHeader();
+      group.forEach(r=>{
+        const values=[`${r.type} ${leaveTypeLabel(r.type)}`,r.total,r.used,r.available,r.expiryText||'No expiry date'];
+        const lines=values.map((v,index)=>doc.splitTextToSize(String(v),widths[index]-10));
+        const rowHeight=Math.max(22,...lines.map(cell=>cell.length*11+8));
+        if(y+rowHeight>pageHeight-38){
+          doc.addPage();y=48;
+          doc.setFontSize(11);doc.setFont(undefined,'bold');doc.text(`${r.staff} (${r.username})`,left,y);doc.setFont(undefined,'normal');
+          y+=18;doc.setFontSize(9);drawTableHeader();
+        }
+        let x=left;lines.forEach((cell,index)=>{doc.rect(x,y-14,widths[index],rowHeight);doc.text(cell,x+5,y,{lineHeightFactor:1.15});x+=widths[index];});
+        y+=rowHeight;
+      });
+      y+=12;
+    }
+    if(!rows.length){doc.setFontSize(11);doc.text('No active staff leave balances found.',left,y);}
+    doc.save(`leave_balance_report_${leaveReportYear}.pdf`);toast('Leave balance PDF exported','success');
+  }catch(e){toast('PDF export failed: '+e.message,'error');}
 }
 async function loadLeaveBalances(){
   const el=document.getElementById('balanceContent');
@@ -1241,17 +1373,23 @@ async function loadLeaveBalances(){
         const baseDays=type===BASE_ANNUAL_LEAVE_TYPE?BASE_ANNUAL_LEAVE_DAYS:0;
         const adminDays=batches.reduce((s,b)=>s+Number(b.entitlement_days||0),0);
         const totalEnt=baseDays+adminDays;
-        const pending=countMap[a.username+'|'+type+'|pending']||0;
-        const approvedDates=approvedDateMap[a.username+'|'+type]||new Set();
-        const requestUsed=approvedDates.size;
-        const scheduleUsed=countScheduleLeaveDays(a.full_name,type,balanceYear,approvedDates);
-        const used=requestUsed+scheduleUsed;
+        const pending=0;
+        const requestUsed=0;
+        const scheduleDates=new Set();
+        if(type===BASE_ANNUAL_LEAVE_TYPE){
+          dateRange(`${balanceYear}-01-01`,`${balanceYear}-12-31`).forEach(ds=>{if(getShift(a.full_name,ds)===type) scheduleDates.add(ds);});
+        }
+        batches.forEach(b=>{
+          dateRange(b.start_date?b.start_date.slice(0,10):`${balanceYear}-01-01`,b.expiry_date?b.expiry_date.slice(0,10):`${balanceYear}-12-31`).forEach(ds=>{if(getShift(a.full_name,ds)===type) scheduleDates.add(ds);});
+        });
+        const scheduleUsed=scheduleDates.size;
+        const used=scheduleUsed;
         const available=Math.max(totalEnt-pending-used,0);
         const baseExpiry=type===BASE_ANNUAL_LEAVE_TYPE?`${balanceYear}-12-31`:null;
         html+=`<div style="padding:6px 14px;border-bottom:1px solid var(--border);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
             <span class="req-type type-${type}">${type} ${leaveTypeLabel(type)}</span>
-            <span style="font-size:12px;color:var(--muted);">Base: <strong>${baseDays}</strong>d &nbsp;|&nbsp; Admin Added: <strong>${adminDays}</strong>d &nbsp;|&nbsp; Total: <strong>${totalEnt}</strong>d &nbsp;|&nbsp; Pending: <strong style="color:var(--orange);">${pending}</strong> &nbsp;|&nbsp; Used: <strong style="color:var(--green);">${used}</strong> &nbsp;|&nbsp; Available: <strong style="color:${available>0?'var(--blue)':'var(--red)'};">${available}</strong></span>
+            <span style="font-size:12px;color:var(--muted);">Base: <strong>${baseDays}</strong>d &nbsp;|&nbsp; Admin Added: <strong>${adminDays}</strong>d &nbsp;|&nbsp; Total: <strong>${totalEnt}</strong>d &nbsp;|&nbsp; Used from schedule: <strong style="color:var(--green);">${used}</strong> &nbsp;|&nbsp; Available: <strong style="color:${available>0?'var(--blue)':'var(--red)'};">${available}</strong></span>
             ${scheduleUsed?`<span style="font-size:11px;color:var(--green);">Schedule: ${scheduleUsed}d</span>`:''}
             ${baseExpiry?`<span style="font-size:11px;color:var(--muted);">Base expires: ${baseExpiry}</span>`:''}
           </div>
@@ -1259,13 +1397,16 @@ async function loadLeaveBalances(){
         batches.forEach((b,i)=>{
           const bid=b.id;
           const daysId=`bal_${bid}`;
+          const startId=`start_${bid}`;
           const expId=`exp_${bid}`;
           html+=`<div style="display:flex;align-items:center;gap:4px;background:var(--surface3);border-radius:6px;padding:4px 8px;">
             <span style="font-size:11px;color:var(--muted);">#${i+1}</span>
             <input class="balance-input" id="${daysId}" type="number" min="0" value="${b.entitlement_days||0}" style="width:50px;">
+            <span style="font-size:11px;color:var(--muted);">From</span>
+            <input class="balance-input" id="${startId}" type="date" value="${b.start_date?b.start_date.slice(0,10):`${balanceYear}-01-01`}" style="width:130px;font-size:11px;">
             <span style="font-size:11px;color:var(--muted);">Expires</span>
             <input class="balance-input" id="${expId}" type="date" value="${b.expiry_date?b.expiry_date.slice(0,10):''}" style="width:130px;font-size:11px;">
-            <button class="btn btn-success btn-sm" onclick="saveLeaveEntitlement('${bid}','${daysId}','${expId}')" style="padding:3px 8px;font-size:11px;">Save</button>
+            <button class="btn btn-success btn-sm" onclick="saveLeaveEntitlement('${bid}','${daysId}','${startId}','${expId}')" style="padding:3px 8px;font-size:11px;">Save</button>
             <button class="btn btn-danger btn-sm" onclick="deleteLeaveEntitlement('${bid}')" style="padding:3px 8px;font-size:11px;">✕</button>
           </div>`;
         });
@@ -1280,15 +1421,17 @@ async function loadLeaveBalances(){
   }
 }
 
-async function saveLeaveEntitlement(id,daysId,expId){
+async function saveLeaveEntitlement(id,daysId,startId,expId){
   const val=Number(document.getElementById(daysId).value||0);
   if(val<0){toast('Entitlement cannot be negative','error');return;}
+  const startDate=document.getElementById(startId).value||null;
   const expiryDate=document.getElementById(expId).value||null;
+  if(startDate&&expiryDate&&expiryDate<startDate){toast('Expiry date must be after the start date','error');return;}
   try{
     await api(`leave_balances?id=eq.${id}`,{
       method:'PATCH',
       headers:{Prefer:'return=minimal'},
-      body:JSON.stringify({entitlement_days:val,expiry_date:expiryDate,updated_by:currentUser.username,updated_at:new Date().toISOString()})
+      body:JSON.stringify({entitlement_days:val,start_date:startDate,expiry_date:expiryDate,updated_by:currentUser.username,updated_at:new Date().toISOString()})
     });
     toast('Saved','success');
     loadLeaveBalances();
@@ -1296,11 +1439,12 @@ async function saveLeaveEntitlement(id,daysId,expId){
 }
 async function addLeaveEntitlement(fullName,username,type){
   try{
-    const defaultExpiry=`${balanceYear}-12-31`;
+    const defaultStart=`${balanceYear}-01-01`;
+    const defaultExpiry=type==='AL'?`${balanceYear}-12-31`:null;
     await api('leave_balances',{
       method:'POST',
       headers:{Prefer:'return=minimal'},
-      body:JSON.stringify({staff_name:fullName,username,year:balanceYear,leave_type:type,entitlement_days:0,expiry_date:defaultExpiry,updated_by:currentUser.username,updated_at:new Date().toISOString()})
+      body:JSON.stringify({staff_name:fullName,username,year:balanceYear,leave_type:type,entitlement_days:0,start_date:defaultStart,expiry_date:defaultExpiry,updated_by:currentUser.username,updated_at:new Date().toISOString()})
     });
     toast('Batch added','success');
     loadLeaveBalances();
@@ -1434,17 +1578,11 @@ function renderTeamCalendar(){
     }
     if(!hasShift) return;
     html+=`<tr><td class="sticky-col" style="background:var(--surface2);">${name}</td>`;
-    for(let d=1;d<=daysInMonth;d++){
-      const ds=teamYear+'-'+ms+'-'+String(d).padStart(2,'0');
-      const s=getShift(name,ds)||'';
-      let bg='transparent',color='var(--muted)';
-      if(s==='M'){bg='rgba(255,214,0,.14)';color='#ffe066';}
-      else if(s==='A'){bg='rgba(116,167,124,.18)';color='#8fc99a';}
-      else if(s==='N'){bg='rgba(0,176,240,.16)';color='#4cc3f5';}
-      else if(s==='WO'){bg='var(--surface3)';color='rgba(255,255,255,.12)';}
-      else if(s==='AL'){bg='var(--green-dim)';color='var(--green)';}
-      html+=`<td style="background:${bg};color:${color};font-weight:600;font-size:11px;">${shiftLabel(s)}</td>`;
-    }
+     for(let d=1;d<=daysInMonth;d++){
+       const ds=teamYear+'-'+ms+'-'+String(d).padStart(2,'0');
+       const s=getShift(name,ds)||'';
+       html+=`<td class="${shiftClass(s)}" style="font-weight:600;font-size:11px;">${shiftLabel(s)}</td>`;
+     }
     html+='</tr>';
   });
 
@@ -1464,6 +1602,59 @@ function syncBuilderSelectors(){
   }
   monthSel.value=String(builderMonth);
   yearSel.value=String(builderYear);
+  syncBuilderTransferSelectors();
+}
+function syncBuilderTransferSelectors(){
+  ['importMonthlyYear','importYearlyYear','exportMonthlyYear','exportYearlyYear'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel&&!sel.options.length) sel.innerHTML=YEAR_RANGE.map(y=>`<option value="${y}">${y}</option>`).join('');
+    if(sel) sel.value=String(builderYear);
+  });
+  ['importMonthlyMonth','exportMonthlyMonth'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(sel&&!sel.options.length) sel.innerHTML=MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+    if(sel) sel.value=String(builderMonth);
+  });
+}
+function toggleBuilderTransferMenu(event,id){
+  event.stopPropagation();
+  syncBuilderTransferSelectors();
+  document.querySelectorAll('.schedule-transfer').forEach(el=>{if(el.id!==id) el.classList.remove('open');});
+  const menu=document.getElementById(id);
+  if(!menu) return;
+  menu.classList.toggle('open');
+}
+function getBuilderScheduleScope(kind,mode){
+  if(kind==='month'){
+    return {
+      type:'month',
+      year:Number(document.getElementById(`${mode}MonthlyYear`).value),
+      month:Number(document.getElementById(`${mode}MonthlyMonth`).value)
+    };
+  }
+  return {type:'year',year:Number(document.getElementById(`${mode}YearlyYear`).value)};
+}
+function scheduleScopeLabel(scope){
+  return scope.type==='month'?`${MONTHS[scope.month]} ${scope.year}`:`${scope.year}`;
+}
+function isDateInScheduleScope(ds,scope){
+  if(!scope||!ds) return true;
+  if(!ds.startsWith(scope.year+'-')) return false;
+  if(scope.type==='month') return Number(ds.slice(5,7))===scope.month+1;
+  return true;
+}
+function triggerScopedImport(kind){
+  if(currentUser.role!=='admin'){toast('Admin access only','error');return;}
+  pendingImportScope=getBuilderScheduleScope(kind,'import');
+  document.querySelectorAll('.schedule-transfer').forEach(el=>el.classList.remove('open'));
+  const file=document.getElementById('scheduleFile');
+  if(file){file.value='';file.click();}
+}
+function exportScopedSchedule(kind){
+  if(kind==='year'&&currentUser.role!=='admin'){toast('Yearly export is admin only','error');return;}
+  const scope=getBuilderScheduleScope(kind,'export');
+  document.querySelectorAll('.schedule-transfer').forEach(el=>el.classList.remove('open'));
+  exportSchedule(scope);
 }
 function onBuilderMonthYearChange(){
   builderMonth=Number(document.getElementById('builderMonthSelect').value);
@@ -1571,7 +1762,11 @@ async function chooseShift(name,date,code){
     toast('Schedule not saved: '+e.message,'error');
   }
 }
-document.addEventListener('click',()=>{const m=document.getElementById('shiftMenu');if(m)m.classList.remove('open');});
+document.addEventListener('click',()=>{
+  const m=document.getElementById('shiftMenu');
+  if(m)m.classList.remove('open');
+  document.querySelectorAll('.schedule-transfer').forEach(el=>el.classList.remove('open'));
+});
 
 async function loadStaffAccounts(){
   const el=document.getElementById('staffContent');
@@ -1667,16 +1862,19 @@ const SHIFT_EXPORT={M:'Morning',A:'Afternoon',N:'Overnight',WO:'Day Off'};
 const SHIFT_FILL={M:'FFFFFF00',A:'FF74A77C',N:'FF00B0F0',WO:'FFAEAEAE',AL:'FFECD5E9',CL:'FFD1E2D3'};
 const DEPT_NAME_FILL={MINING:'FFDBEDD5',FM:'FFF1AB83',IT:'FFB4C6E7'};
 const DEPT_FILL={MINING:'FFE2EFDA',FM:'FFF1AB83',IT:'FFA1BFCD'};
-async function exportSchedule(){
-  const sel=document.getElementById('exportMonth').value;
-  const months=sel==='all'?Array.from({length:12},(_,i)=>i):[parseInt(sel)];
+async function exportSchedule(scope=null){
+  let selectedScope=scope;
+  if(!selectedScope){
+    selectedScope={type:'month',year:builderYear,month:builderMonth};
+  }
+  const months=selectedScope.type==='year'?Array.from({length:12},(_,i)=>i):[selectedScope.month];
   try{
     const wb=new ExcelJS.Workbook();
     const ws=wb.addWorksheet('Schedule');
     ws.getColumn(1).width=22;ws.getColumn(2).width=10;
     let r=1;
     months.forEach(m=>{
-      const daysInMonth=new Date(APP_YEAR,m+1,0).getDate();
+      const daysInMonth=new Date(selectedScope.year,m+1,0).getDate();
       for(let d=1;d<=daysInMonth;d++) ws.getColumn(2+d).width=14;
       const hr=ws.getRow(r);
       hr.getCell(1).value='NAME';hr.getCell(2).value='DEPT';
@@ -1686,7 +1884,7 @@ async function exportSchedule(){
         const c=hr.getCell(2+d);
         c.value=d+'-'+MONTHS[m].slice(0,3);
         c.font={bold:true};c.alignment={horizontal:'center'};
-        wr.getCell(2+d).value=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(APP_YEAR,m,d).getDay()];
+        wr.getCell(2+d).value=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date(selectedScope.year,m,d).getDay()];
       }
       ALL_STAFF_NAMES.forEach((n,i)=>{
         const row=ws.getRow(r+2+i);
@@ -1696,7 +1894,7 @@ async function exportSchedule(){
         if(DEPT_NAME_FILL[dep]) row.getCell(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:DEPT_NAME_FILL[dep]}};
         if(DEPT_FILL[dep]) row.getCell(2).fill={type:'pattern',pattern:'solid',fgColor:{argb:DEPT_FILL[dep]}};
         for(let d=1;d<=daysInMonth;d++){
-          const ds=APP_YEAR+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+          const ds=selectedScope.year+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
           const code=getShift(n,ds)||'';
           if(!code) continue;
           const cell=row.getCell(2+d);
@@ -1726,9 +1924,9 @@ async function exportSchedule(){
     const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=sel==='all'?`madz_schedule_${APP_YEAR}.xlsx`:`madz_schedule_${MONTHS[parseInt(sel)]}_${APP_YEAR}.xlsx`;
+    a.download=selectedScope.type==='year'?`madz_schedule_${selectedScope.year}.xlsx`:`madz_schedule_${MONTHS[selectedScope.month]}_${selectedScope.year}.xlsx`;
     a.click();URL.revokeObjectURL(a.href);
-    toast('Exported ✅','success');
+    toast(`Exported ${scheduleScopeLabel(selectedScope)} ✅`,'success');
   }catch(e){toast('Failed: '+e.message,'error');}
 }
 
@@ -1746,16 +1944,16 @@ function normalizeShiftLabel(v){
   const direct={AL:'AL',SL:'SL',CL:'CL',WO:'WO',PH:'PH',CO:'CO',TAD:'TAD',HOLIDAY:'Holiday'};
   return direct[up]||s;
 }
-function parseSheetDate(v){
+function parseSheetDate(v,defaultYear=APP_YEAR){
   if(v===null||v===undefined||v==='') return null;
   if(typeof v==='number'){if(v>25569&&v<80000) return new Date(Math.round((v-25569)*86400000)).toISOString().slice(0,10);return null;}
   const s=String(v).trim();
   let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if(m) return m[1]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[3]).padStart(2,'0');
   m=s.match(/^(\d{1,2})[\/\-. ]([A-Za-z]{3,})(?:[\/\-. ]\d{2,4})?$/);
-  if(m&&MONTH_MAP[m[2].slice(0,3).toLowerCase()]) return APP_YEAR+'-'+String(MONTH_MAP[m[2].slice(0,3).toLowerCase()]).padStart(2,'0')+'-'+String(parseInt(m[1],10)).padStart(2,'0');
+  if(m&&MONTH_MAP[m[2].slice(0,3).toLowerCase()]) return defaultYear+'-'+String(MONTH_MAP[m[2].slice(0,3).toLowerCase()]).padStart(2,'0')+'-'+String(parseInt(m[1],10)).padStart(2,'0');
   m=s.match(/^([A-Za-z]{3,})[\/\-. ](\d{1,2})$/);
-  if(m&&MONTH_MAP[m[1].slice(0,3).toLowerCase()]) return APP_YEAR+'-'+String(MONTH_MAP[m[1].slice(0,3).toLowerCase()]).padStart(2,'0')+'-'+String(parseInt(m[2],10)).padStart(2,'0');
+  if(m&&MONTH_MAP[m[1].slice(0,3).toLowerCase()]) return defaultYear+'-'+String(MONTH_MAP[m[1].slice(0,3).toLowerCase()]).padStart(2,'0')+'-'+String(parseInt(m[2],10)).padStart(2,'0');
   return null;
 }
 async function persistSchedule(payloads,deleteDates){
@@ -1772,6 +1970,8 @@ async function persistSchedule(payloads,deleteDates){
   }catch(e){console.warn('persistSchedule failed:',e.message);return false;}
 }
 async function importSchedule(e){
+  const importScope=pendingImportScope;
+  pendingImportScope=null;
   const file=e.target.files[0];
   if(!file||!file.name.endsWith('.xlsx')){toast('Please upload .xlsx file','error');return;}
   const reader=new FileReader();
@@ -1786,12 +1986,16 @@ async function importSchedule(e){
       if(!legacy){
         const DAYNAMES=/^(sat|sun|mon|tue|wed|thu|fri|saturday|sunday|monday|tuesday|wednesday|thursday|friday)$/i;
         let colDate=null,curDept='';
-        const added=[],payloads=[],staffSet=new Set();
+        const added=[],payloads=[],staffSet=new Set(),importDates=new Set();
         for(let r=0;r<grid.length;r++){
           const row=grid[r]||[];
           const tmp={};let hits=0;
-          row.forEach((v,c)=>{if(!c)return;const ds=parseSheetDate(v);if(ds){tmp[c]=ds;hits++;}});
-          if(hits>=3){colDate=tmp;continue;}
+          row.forEach((v,c)=>{if(!c)return;const ds=parseSheetDate(v,importScope?.year||APP_YEAR);if(ds){tmp[c]=ds;hits++;}});
+          if(hits>=3){
+            colDate=tmp;
+            Object.values(colDate).forEach(ds=>{if(isDateInScheduleScope(ds,importScope)) importDates.add(ds);});
+            continue;
+          }
           if(!colDate) continue;
           const name=String(row[0]||'').trim();
           if(!name){const dv=String(row[1]==null?'':row[1]).trim();if(dv&&!DAYNAMES.test(dv)&&!/^dept$/i.test(dv))curDept=dv.toUpperCase();continue;}
@@ -1802,34 +2006,39 @@ async function importSchedule(e){
           if(!ALL_STAFF_NAMES.includes(name)){ALL_STAFF_NAMES.push(name);REMOVED_STAFF.delete(name);added.push(name);}
           staffSet.add(name);
           for(let c=1;c<row.length;c++){
-            if(!(c in colDate)) continue;
-            const code=normalizeShiftLabel(row[c]);
-            if(!code) continue;
+             if(!(c in colDate)) continue;
+             if(!isDateInScheduleScope(colDate[c],importScope)) continue;
+             importDates.add(colDate[c]);
+             const code=normalizeShiftLabel(row[c]);
+             if(!code) continue;
             SCHEDULE[name+'|'+colDate[c]]=code;
             payloads.push({staff_name:name,shift_date:colDate[c],shift_code:code,updated_by:(currentUser&&currentUser.username)||'import',updated_at:new Date().toISOString()});
             count++;
           }
         }
+        importDates.forEach(ds=>{ALL_STAFF_NAMES.forEach(n=>{delete SCHEDULE[n+'|'+ds];});});
+        payloads.forEach(p=>{SCHEDULE[p.staff_name+'|'+p.shift_date]=p.shift_code;});
         if(added.length) localStorage.setItem('removedScheduleStaff',JSON.stringify([...REMOVED_STAFF]));
-        if(Object.keys(STAFF_DEPT).length) saveStaffDepts();
-        const saved=await persistSchedule(payloads,null);
-        msg=`✅ Imported ${count} entries · ${staffSet.size} staff`+(added.length?` · added new: ${added.join(', ')}`:'')+` · ${saved?'saved to database':'⚠️ database save failed — kept in memory only'}`;
-      }else{
-        const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-        const dates=new Set();
-        rows.forEach(row=>{
-          const date=row['Date']||row['date'];
-          if(!date) return;
-          const ds=typeof date==='number'?new Date((date-25569)*86400000).toISOString().slice(0,10):String(date).slice(0,10);
-          dates.add(ds);
-        });
-        dates.forEach(ds=>{ALL_STAFF_NAMES.forEach(n=>{delete SCHEDULE[n+'|'+ds];});});
-        const payloads=[];
-        rows.forEach(row=>{
-          const date=row['Date']||row['date'];
-          if(!date) return;
-          const ds=typeof date==='number'?new Date((date-25569)*86400000).toISOString().slice(0,10):String(date).slice(0,10);
-          ALL_STAFF_NAMES.forEach(n=>{
+         if(Object.keys(STAFF_DEPT).length) saveStaffDepts();
+         const saved=await persistSchedule(payloads,[...importDates]);
+         msg=`✅ Imported ${count} entries · ${staffSet.size} staff`+(added.length?` · added new: ${added.join(', ')}`:'')+` · ${saved?'saved to database':'⚠️ database save failed — kept in memory only'}`;
+       }else{
+         const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+         const dates=new Set();
+         rows.forEach(row=>{
+           const date=row['Date']||row['date'];
+           if(!date) return;
+           const ds=parseSheetDate(date,importScope?.year||APP_YEAR);
+           if(ds&&isDateInScheduleScope(ds,importScope)) dates.add(ds);
+         });
+         dates.forEach(ds=>{ALL_STAFF_NAMES.forEach(n=>{delete SCHEDULE[n+'|'+ds];});});
+         const payloads=[];
+         rows.forEach(row=>{
+           const date=row['Date']||row['date'];
+           if(!date) return;
+           const ds=parseSheetDate(date,importScope?.year||APP_YEAR);
+           if(!ds||!isDateInScheduleScope(ds,importScope)) return;
+           ALL_STAFF_NAMES.forEach(n=>{
             const shift=row[n];
             if(shift){
               SCHEDULE[n+'|'+ds]=String(shift).trim();
@@ -1841,9 +2050,10 @@ async function importSchedule(e){
         const saved=await persistSchedule(payloads,[...dates]);
         msg=`✅ Imported ${count} entries from ${rows.length} days · ${saved?'saved to database':'⚠️ database save failed — kept in memory only'}`;
       }
-      document.getElementById('importResult').innerHTML=`<div class="info-box green">${msg}</div>`;
-      toast('Schedule imported','success');
-      renderTeamCalendar();
+       document.getElementById('importResult').innerHTML=`<div class="info-box green">${msg}</div>`;
+       toast('Schedule imported','success');
+       renderScheduleBuilder();
+       renderTeamCalendar();
     }catch(err){document.getElementById('importResult').innerHTML=`<div class="info-box red">❌ ${err.message}</div>`;}
   };
   reader.readAsArrayBuffer(file);
